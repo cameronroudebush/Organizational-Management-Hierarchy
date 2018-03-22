@@ -7,6 +7,7 @@
 
 using namespace std;
 
+/*Gotta fill the Tree with something! Why not some TreeNodes?*/
 class TreeNode {
 public:
 	string title;
@@ -14,6 +15,7 @@ public:
 	TreeNode * parent;
 	TreeNode * left;
 	TreeNode * right;
+	//constructor
 	TreeNode(string newTitle, string newName) {
 		title = newTitle;
 		name = newName;
@@ -23,14 +25,20 @@ public:
 	}
 };
 
+/*The requested class to hold the TreeNodes and make everything look pretty
+	Size requirement per node: 104 bytes*/
 class OrgTree {
 public:
 	TreeNode * head;
-	int size = 0;
+	int size;
+	//Constructor
 	OrgTree() {
 		head = TREENULLPTR;
+		size = 0;
 	}
 
+	/*Adds a root node to the tree or replaces the current one.
+		Runtime: theta n*/
 	void addRoot(string newTitle, string newName) {
 		if (!head) {
 			//if the root is null then add a root
@@ -45,17 +53,27 @@ public:
 		size++;
 	}
 
+	/*Returns the pointer to the root of the tree as long there is one
+		Runtime: theta n*/
 	TREENODEPTR getRoot() {
+		if (!head) {
+			return TREENULLPTR;
+		}
 		return head; //return the head or root
 	}
 
+	/*Prints the entire subtree of a given root node
+		Runtime: theta n*/
 	void printSubTree(TREENODEPTR subTreeRoot) {
-		cout << subTreeRoot->title << ": " << subTreeRoot->name << endl; //prints root
-		int counter = 1;
-		printSubTreeRecursive(subTreeRoot->left, counter); //calls recursion to print everything
-
+		if (subTreeRoot) { //checks to make sure the root isnt a null value
+			cout << subTreeRoot->title << ": " << subTreeRoot->name << endl; //prints root
+			int counter = 1;
+			printSubTreeRecursive(subTreeRoot->left, counter); //calls recursion to print everything
+		}
 	}
 
+	/*Adds a new hire under a given node or root
+		Runtime: theta n*/
 	void hire(TREENODEPTR root, string newTitle, string newName) {
 		TreeNode * current = root->left;
 		if (!current) { //if the left value of the root is null just put it there
@@ -77,17 +95,23 @@ public:
 		size++;
 	}
 
+	/*Finds a person from there given title recursively
+		Runtime: theta n*/
 	TREENODEPTR find(string title) {
 		if (head->title == title) { //if the head = the title than you found it! Way to go!
-			return head; 
+			return head;
 		}
 		return findRecursive(head, title); // call the recursive method because its way easier
 	}
 
+	/*Returns the size of the tree (how many people are in it)
+		Runtime: theta 1*/
 	unsigned int getSize() {
 		return size;
 	}
 
+	/*Finds a person with a formerTitle and removes them from the tree then re orients the tree to replace them
+		Runtime: theta n*/
 	bool fire(string formerTitle) {
 		if (head->title == formerTitle) { //if the head = the title than you cant fire the president
 			return false;
@@ -99,40 +123,46 @@ public:
 		else {
 			if (toFire->left) {
 				TreeNode * currentRight = toFire->right; //gotta navigate to the right until we find a null
+				TreeNode * previous = toFire->parent->left; //used to keep track of the previous value
 				while (currentRight) {
 					currentRight = currentRight->right;
 
 				}
+				while (previous->right != toFire) {
+					previous = previous->right;
+				}
 				currentRight = toFire->left; //set the left child equal to its own node
 				currentRight->parent = toFire->parent; //set the parent of that node to the parent of the one to delete
-				toFire->right->right = currentRight; //set the node to the left of toFire rights value to the right of toFire
 				TreeNode * replacement = toFire->parent->left; //used to know where we need to replace our toFire
-				TreeNode * previous = toFire->parent->left; //used to keep track of the previous value
-				while (replacement != toFire) { //navigate through until we find the value to delete
-					previous = replacement;
-					replacement = replacement->right;
+				if (replacement == toFire) {
+					toFire->parent->left = previous;
 				}
-				previous->right = replacement->right; //set the previous right value to the replacement right so we can delete the toFire
-				delete toFire;
-				size--;
+				else {
+					previous->right = currentRight; //set the node to the left of toFire rights value to the right of toFire
+				}
 			}
+			else {
+				toFire->parent->left = TREENULLPTR;
+			}
+			delete toFire;
+			size--;
+			return true;
 		}
-		return true;
 	}
 
+	/*Returns the left child of the given node
+		Runtime: theta 2*/
 	TREENODEPTR leftMostChild(TREENODEPTR node) {
 		if (!node || !node->left) { //if the node is null then return null
 			return TREENULLPTR;
 		}
 		else {
-			TreeNode * replacement = node; //iterates through to find the furthest left child and returns it
-			while (replacement->left) {
-				replacement = replacement->left;
-			}
-			return replacement;
+			return node->left; // as long as there is something to the left return it!
 		}
 	}
 
+	/*Returns the right sibling of the given node
+		Runtime: theta 2*/
 	TREENODEPTR rightSibling(TREENODEPTR node) {
 		if (!node || !node->right) { //if the node is null then return null
 			return TREENULLPTR;
@@ -142,6 +172,8 @@ public:
 		}
 	}
 
+	/*Reads in a tree from a given file
+		Runtime: theta n*/
 	bool read(string fileName) {
 		string title, name, junk;
 		ifstream file;
@@ -170,6 +202,8 @@ public:
 		return true;
 	}
 
+	/*Writes the tree to a given file recursively
+		Runtime: theta n*/
 	void write(string fileName) {
 		string title, name;
 		ofstream file;
@@ -181,6 +215,8 @@ public:
 	}
 
 private:
+	/*Recursion call for find from above
+		Runtime: theta n*/
 	TREENODEPTR findRecursive(TREENODEPTR current, string title) {
 		if (!current) {
 			return TREENULLPTR; //base case
@@ -197,6 +233,8 @@ private:
 		}
 	}
 
+	/*Recursion call for the print function
+		Runtime: theta n*/
 	void printSubTreeRecursive(TREENODEPTR root, int count) {
 		if (!root) {
 			return; //base case
@@ -213,6 +251,8 @@ private:
 		}
 	}
 
+	/*Recursion call for write function
+		Runtime: theta n*/
 	void writeRecursive(ofstream &file, TREENODEPTR head) {
 		if (!head) {
 			return; //base case
