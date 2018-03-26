@@ -111,7 +111,7 @@ public:
 	}
 
 	/*Finds a person with a formerTitle and removes them from the tree then re orients the tree to replace them
-		Runtime: theta n*/
+		Runtime: theta n^2*/
 	bool fire(string formerTitle) {
 		if (head->title == formerTitle) { //if the head = the title than you cant fire the president
 			return false;
@@ -124,12 +124,22 @@ public:
 			if (toFire->left) {
 				TreeNode * currentRight = toFire->right; //gotta navigate to the right until we find a null
 				TreeNode * previous = toFire->parent->left; //used to keep track of the previous value
+				TreeNode * finder = TREENULLPTR; //Fixes the whole right sibling not being added properly
 				while (currentRight) {
 					currentRight = currentRight->right;
 
 				}
 				while (previous->right != toFire) {
 					previous = previous->right;
+				}
+				if (toFire->right) {
+					finder = toFire->right;
+				}
+				while (finder) { //was having issues that it was not checking right sibling properlyu and this fixes that
+					previous->right = finder;
+					previous = finder;
+					finder = finder->right;
+
 				}
 				currentRight = toFire->left; //set the left child equal to its own node
 				currentRight->parent = toFire->parent; //set the parent of that node to the parent of the one to delete
@@ -205,7 +215,6 @@ public:
 	/*Writes the tree to a given file recursively
 		Runtime: theta n*/
 	void write(string fileName) {
-		string title, name;
 		ofstream file;
 		file.open(fileName);
 		file << head->title << ", " << head->name << endl; //prints root

@@ -87,7 +87,6 @@ int main() {
 	//another read Test
 	cout << o5.read("test3.txt") << endl;
 	o5.printSubTree(o5.getRoot());
-
 	system("PAUSE");
 	return 0;
 }
